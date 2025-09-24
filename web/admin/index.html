@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IM 客服控制台</title>
+    <link rel="stylesheet" href="/static/css/pure-admin.css">
+    <link rel="stylesheet" href="/static/css/admin-app.css">
+</head>
+<body class="pure-admin-body">
+<div class="pure-admin-shell">
+    <aside class="pure-admin-sidebar" data-collapsed="false">
+        <div class="sidebar-brand">
+            <div class="brand-logo">IM</div>
+            <div class="brand-copy">
+                <strong>IM 客服後台</strong>
+                <small>即時客服中心</small>
+            </div>
+        </div>
+        <div class="sidebar-menu">
+            <button class="menu-item active" type="button">
+                <span class="icon">💬</span>
+                <span class="label">對話監控</span>
+            </button>
+            <button class="menu-item" type="button" id="openMetrics">
+                <span class="icon">📊</span>
+                <span class="label">即時概況</span>
+            </button>
+        </div>
+        <div class="sidebar-footer">
+            <div class="agent-card">
+                <div class="avatar">A</div>
+                <div>
+                    <div class="name" id="sidebarAgentName">客服小幫手</div>
+                    <div class="role" id="sidebarAgentRole">尚未登入</div>
+                    <div class="status">
+                        狀態：<span class="badge badge-offline" id="connectionBadge">未連線</span>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-ghost" id="refreshRooms" type="button">刷新房間</button>
+            <button class="btn btn-ghost" id="logoutButton" type="button">登出</button>
+        </div>
+    </aside>
+    <div class="pure-admin-main">
+        <header class="main-header">
+            <div class="breadcrumbs">
+                <span class="crumb">控制台</span>
+                <span class="crumb current">對話監控</span>
+            </div>
+            <div class="header-actions">
+                <div class="search-box">
+                    <span class="icon">🔍</span>
+                    <input id="roomSearch" type="search" placeholder="搜尋房號、玩家暱稱或訊息" autocomplete="off">
+                </div>
+                <button class="btn btn-ghost" type="button" id="openAccountDrawer">會員管理</button>
+                <div class="header-avatar" id="headerAvatar">IM</div>
+            </div>
+        </header>
+        <main class="main-content">
+            <section class="metrics" id="metricsPanel">
+                <article class="metric-card">
+                    <div class="metric-label">待接客服</div>
+                    <div class="metric-value" id="waitingCount">0</div>
+                    <div class="metric-foot">尚未指派的對話</div>
+                </article>
+                <article class="metric-card">
+                    <div class="metric-label">活躍房間</div>
+                    <div class="metric-value" id="activeCount">0</div>
+                    <div class="metric-foot">最近 5 分鐘有訊息</div>
+                </article>
+                <article class="metric-card">
+                    <div class="metric-label">客服在線</div>
+                    <div class="metric-value" id="agentOnlineCount">0</div>
+                    <div class="metric-foot">房間中連線的客服</div>
+                </article>
+            </section>
+            <section class="workspace">
+                <aside class="workspace-list">
+                    <header class="workspace-header">
+                        <div>
+                            <h2>對話列表</h2>
+                            <p id="listCounter">0 個對話</p>
+                        </div>
+                        <button class="btn btn-ghost" type="button" id="toggleSidebar">收合</button>
+                    </header>
+                    <div class="room-list" id="roomList"></div>
+                </aside>
+                <button class="workspace-handle" type="button" id="openSidebarHandle" hidden>展開對話列表</button>
+                <section class="workspace-chat">
+                    <header class="chat-toolbar">
+                        <div>
+                            <h2 id="roomTitle">請選擇對話</h2>
+                            <p id="roomMeta">尚未選擇任何房間</p>
+                        </div>
+                        <div class="chat-actions">
+                            <input id="agentName" type="text" class="input" value="客服小幫手" placeholder="客服暱稱">
+                            <button class="btn btn-primary" type="button" id="assignAgent">指派自己</button>
+                            <div class="transfer-control">
+                                <select id="transferTarget" class="input">
+                                    <option value="">轉接至在線客服</option>
+                                </select>
+                                <button class="btn btn-secondary" type="button" id="transferAgent">轉接</button>
+                            </div>
+                        </div>
+                    </header>
+                    <section class="chat-timeline" id="messageStream">
+                        <div class="empty-placeholder">請從左側選擇一個房間以載入對話</div>
+                    </section>
+                    <footer class="chat-composer">
+                        <form id="messageForm" autocomplete="off">
+                            <textarea id="messageInput" rows="1" placeholder="輸入訊息，Enter 送出，Shift+Enter 換行" disabled></textarea>
+                            <div class="composer-actions">
+                                <button class="btn btn-ghost" type="button" id="sendTyping">正在輸入</button>
+                                <button class="btn btn-primary" type="submit" id="sendMessage" disabled>傳送</button>
+                            </div>
+                        </form>
+                    </footer>
+                </section>
+            </section>
+        </main>
+    </div>
+</div>
+<div class="auth-overlay" id="authOverlay" hidden>
+    <div class="auth-card">
+        <h2>客服登入</h2>
+        <form id="loginForm" autocomplete="off">
+            <label for="loginUsername">帳號</label>
+            <input id="loginUsername" type="text" placeholder="輸入帳號" required>
+            <label for="loginPassword">密碼</label>
+            <input id="loginPassword" type="password" placeholder="輸入密碼" required>
+            <button class="btn btn-primary" type="submit">登入</button>
+        </form>
+        <p class="auth-error" id="loginError"></p>
+        <p class="auth-hint">預設管理員：帳號 admin01 / 密碼 admin01pass</p>
+    </div>
+</div>
+<div class="drawer" id="accountDrawer" hidden>
+    <div class="drawer-content">
+        <header>
+            <h3>會員管理</h3>
+            <button type="button" class="btn btn-ghost" id="closeAccountDrawer">關閉</button>
+        </header>
+        <div class="drawer-body account-drawer">
+            <section class="account-section" id="accountProfile">
+                <h4>目前登入</h4>
+                <p id="accountSummary">尚未登入</p>
+                <p class="account-message" id="accountMessage"></p>
+            </section>
+            <section class="account-section admin-only" id="createAgentSection">
+                <h4>建立客服帳號</h4>
+                <form id="createAgentForm" autocomplete="off">
+                    <div class="field">
+                        <label for="agentUsername">帳號</label>
+                        <input id="agentUsername" type="text" required placeholder="輸入客服帳號">
+                    </div>
+                    <div class="field">
+                        <label for="agentPassword">密碼</label>
+                        <input id="agentPassword" type="password" required placeholder="設定密碼">
+                    </div>
+                    <div class="field">
+                        <label for="agentDisplay">顯示名稱</label>
+                        <input id="agentDisplay" type="text" placeholder="客服顯示名稱">
+                    </div>
+                    <div class="field">
+                        <label for="agentAgency">代理代碼</label>
+                        <input id="agentAgency" type="text" placeholder="預設為 default">
+                    </div>
+                    <button class="btn btn-primary" type="submit">新增客服帳號</button>
+                </form>
+            </section>
+            <section class="account-section" id="createPlayerSection">
+                <h4>建立玩家帳號</h4>
+                <form id="createPlayerForm" autocomplete="off">
+                    <div class="field">
+                        <label for="playerUsername">帳號</label>
+                        <input id="playerUsername" type="text" required placeholder="輸入玩家帳號">
+                    </div>
+                    <div class="field">
+                        <label for="playerPassword">密碼</label>
+                        <input id="playerPassword" type="password" required placeholder="設定密碼">
+                    </div>
+                    <div class="field">
+                        <label for="playerDisplay">顯示名稱</label>
+                        <input id="playerDisplay" type="text" placeholder="玩家顯示名稱">
+                    </div>
+                    <div class="field">
+                        <label for="playerAgency">代理代碼</label>
+                        <input id="playerAgency" type="text" placeholder="預設為 default">
+                    </div>
+                    <button class="btn btn-primary" type="submit">新增玩家帳號</button>
+                </form>
+            </section>
+            <section class="account-section admin-only" id="agencySettingsSection">
+                <h4>代理 API 設定</h4>
+                <p class="section-hint">設定各代理使用的充值、提現、注單與玩家資訊 API。</p>
+                <form id="agencySettingsForm" autocomplete="off">
+                    <div class="field">
+                        <label for="settingsAgency">代理代碼</label>
+                        <input id="settingsAgency" type="text" placeholder="例如：agency01" required>
+                    </div>
+                    <div class="field">
+                        <label for="settingsSelect">已設定代理</label>
+                        <select id="settingsSelect">
+                            <option value="">選擇代理或輸入新代理</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="settingsCharge">充值列表 API</label>
+                        <input id="settingsCharge" type="text" placeholder="https://example.com/charge">
+                    </div>
+                    <div class="field">
+                        <label for="settingsWithdraw">提現列表 API</label>
+                        <input id="settingsWithdraw" type="text" placeholder="https://example.com/withdraw">
+                    </div>
+                    <div class="field">
+                        <label for="settingsBet">注單列表 API</label>
+                        <input id="settingsBet" type="text" placeholder="https://example.com/bet">
+                    </div>
+                    <div class="field">
+                        <label for="settingsPlayerInfo">玩家資訊 API</label>
+                        <input id="settingsPlayerInfo" type="text" placeholder="https://example.com/player">
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-secondary" type="button" id="resetAgencySettings">清除欄位</button>
+                        <button class="btn btn-primary" type="submit">儲存設定</button>
+                    </div>
+                    <p class="account-message" id="agencySettingsMessage"></p>
+                </form>
+            </section>
+            <section class="account-section" id="onlineAgentSection">
+                <h4>在線客服</h4>
+                <ul id="onlineAgentList" class="agent-list"></ul>
+            </section>
+        </div>
+    </div>
+</div>
+<div class="drawer" id="metricsDrawer" hidden>
+    <div class="drawer-content">
+        <header>
+            <h3>即時概況</h3>
+            <button type="button" class="btn btn-ghost" id="closeMetrics">關閉</button>
+        </header>
+        <div class="drawer-body" id="drawerMetrics"></div>
+    </div>
+</div>
+<script type="module" src="/static/js/admin/app.js"></script>
+</body>
+</html>

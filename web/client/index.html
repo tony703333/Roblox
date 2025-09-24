@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>玩家客服對話 · WuKong 風格</title>
+    <link rel="stylesheet" href="/static/css/client-app.css">
+</head>
+<body class="wk-shell">
+<div class="wk-container">
+    <aside class="wk-sidebar">
+        <header class="wk-brand">
+            <div class="brand-avatar">IM</div>
+            <div class="brand-meta">
+                <strong>IM 客服</strong>
+                <span>WuKong IM 範本</span>
+            </div>
+        </header>
+        <div class="wk-auth" id="loginPanel">
+            <h3>會員登入</h3>
+            <form id="playerLoginForm" autocomplete="off">
+                <label for="loginUsername">帳號</label>
+                <input id="loginUsername" type="text" placeholder="輸入帳號" autocomplete="username" required>
+                <label for="loginPassword">密碼</label>
+                <input id="loginPassword" type="password" placeholder="輸入密碼" autocomplete="current-password" required>
+                <button type="submit" class="wk-button primary">登入</button>
+            </form>
+            <p class="wk-auth-error" id="playerLoginError"></p>
+            <button type="button" class="wk-link" id="showRegister">還沒有帳號？註冊</button>
+        </div>
+        <div class="wk-auth" id="registerPanel" hidden>
+            <h3>快速註冊</h3>
+            <form id="playerRegisterForm" autocomplete="off">
+                <label for="registerUsername">帳號</label>
+                <input id="registerUsername" type="text" placeholder="設定帳號" autocomplete="username" required>
+                <label for="registerPassword">密碼</label>
+                <input id="registerPassword" type="password" placeholder="設定密碼" autocomplete="new-password" required>
+                <label for="registerDisplay">暱稱</label>
+                <input id="registerDisplay" type="text" placeholder="顯示名稱（選填）">
+                <label for="registerAgency">代理代碼</label>
+                <input id="registerAgency" type="text" placeholder="預設為 default">
+                <button type="submit" class="wk-button primary">註冊並登入</button>
+            </form>
+            <p class="wk-auth-error" id="playerRegisterError"></p>
+            <button type="button" class="wk-link" id="showLogin">已有帳號？登入</button>
+        </div>
+        <div class="wk-account" id="accountPanel" hidden>
+            <h3>我的帳號</h3>
+            <p id="accountSummary">尚未登入</p>
+            <button id="playerLogout" type="button" class="wk-button ghost">登出</button>
+        </div>
+        <div class="wk-profile">
+            <label for="playerName">您的暱稱</label>
+            <input id="playerName" type="text" placeholder="輸入暱稱" autocomplete="off" disabled>
+            <button id="startChat" type="button" class="wk-button" disabled>開始對話</button>
+        </div>
+        <div class="wk-session-meta">
+            <div>
+                <span class="label">房號</span>
+                <span class="value" id="roomIndicator">--</span>
+            </div>
+            <div>
+                <span class="label">連線狀態</span>
+                <span class="value"><span class="status-dot" id="connectionDot"></span><span id="connectionState">未連線</span></span>
+            </div>
+            <div>
+                <span class="label">客服</span>
+                <span class="value" id="assignedAgentIndicator">尚未指派</span>
+            </div>
+        </div>
+        <div class="wk-tips">
+            <h3>使用說明</h3>
+            <ul>
+                <li>按下 Enter 送出訊息，Shift+Enter 換行</li>
+                <li>支援客服指派與歷史紀錄同步</li>
+                <li>訊息序號可對應後台追蹤</li>
+            </ul>
+        </div>
+    </aside>
+    <main class="wk-chat">
+        <header class="wk-chat-header">
+            <div>
+                <h1 id="chatTitle">客服連線準備中</h1>
+                <p id="chatSubtitle">點擊左側開始對話，系統將建立房間並等待客服加入。</p>
+            </div>
+            <div class="wk-chat-actions">
+                <button id="requestHistory" type="button" class="wk-button ghost" disabled>同步歷史</button>
+                <button id="leaveRoom" type="button" class="wk-button ghost">離開</button>
+            </div>
+        </header>
+        <section class="wk-chat-body" id="messageTimeline">
+            <div class="wk-placeholder">尚未建立對話</div>
+        </section>
+        <footer class="wk-composer">
+            <form id="chatForm" autocomplete="off">
+                <textarea id="messageInput" rows="1" placeholder="請輸入訊息" disabled></textarea>
+                <div class="wk-composer-actions">
+                    <button id="typingSignal" type="button" class="wk-button ghost">正在輸入</button>
+                    <button type="submit" class="wk-button primary" id="sendButton" disabled>傳送</button>
+                </div>
+            </form>
+        </footer>
+    </main>
+</div>
+<script type="module" src="/static/js/client/app.js"></script>
+</body>
+</html>
